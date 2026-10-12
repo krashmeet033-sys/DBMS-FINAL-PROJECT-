@@ -1,0 +1,242 @@
+Last login: Mon Oct  5 13:30:51 on ttys001
+rashmeetkaur@Rashmeets-MacBook-Air ~ % cd ~/Desktop/Travel-Agency-Booking-Management
+rashmeetkaur@Rashmeets-MacBook-Air Travel-Agency-Booking-Management % pwd
+/Users/rashmeetkaur/Desktop/Travel-Agency-Booking-Management
+rashmeetkaur@Rashmeets-MacBook-Air Travel-Agency-Booking-Management % brew services start mysql
+Service `mysql` already started, use `brew services restart mysql` to restart.
+rashmeetkaur@Rashmeets-MacBook-Air Travel-Agency-Booking-Management % mysql -u root
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 26.7.0 Homebrew
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE travel_agency_db;
+ERROR 1007 (HY000): Can't create database 'travel_agency_db'; database exists
+mysql> USE travel_agency_db;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SHOW TABLES;
++----------------------------+
+| Tables_in_travel_agency_db |
++----------------------------+
+| domestic_bookings          |
+| international_bookings     |
++----------------------------+
+2 rows in set (0.001 sec)
+
+mysql> SELECT * FROM domestic_bookings;
++------------+---------------+-------------+--------------+----------+
+| booking_id | customer_name | destination | booking_date | amount   |
++------------+---------------+-------------+--------------+----------+
+|          1 | Asha          | Goa         | 2026-01-10   | 15000.00 |
+|          2 | Vikram        | Jaipur      | 2026-01-15   | 12000.00 |
+|          3 | Rohan         | Kerala      | 2026-02-05   | 18000.00 |
+|          4 | Meera         | Goa         | 2026-02-20   | 14000.00 |
++------------+---------------+-------------+--------------+----------+
+4 rows in set (0.002 sec)
+
+mysql> SELECT * FROM international_bookings;
++------------+---------------+-------------+--------------+----------+
+| booking_id | customer_name | destination | booking_date | amount   |
++------------+---------------+-------------+--------------+----------+
+|          1 | Asha          | Dubai       | 2026-03-10   | 45000.00 |
+|          2 | Vikram        | Singapore   | 2026-03-15   | 55000.00 |
+|          3 | Rohan         | Bangkok     | 2026-04-05   | 40000.00 |
+|          4 | Meera         | Dubai       | 2026-04-20   | 48000.00 |
+|          5 | Asha          | Singapore   | 2026-05-01   | 52000.00 |
++------------+---------------+-------------+--------------+----------+
+5 rows in set (0.000 sec)
+
+mysql> SELECT customer_name
+    -> FROM domestic_bookings
+    -> UNION
+    -> SELECT customer_name
+    -> FROM international_bookings;
++---------------+
+| customer_name |
++---------------+
+| Asha          |
+| Vikram        |
+| Rohan         |
+| Meera         |
++---------------+
+4 rows in set (0.004 sec)
+
+mysql> SELECT customer_name
+    -> FROM domestic_bookings
+    -> UNION ALL
+    -> SELECT customer_name
+    -> FROM international_bookings;
++---------------+
+| customer_name |
++---------------+
+| Asha          |
+| Vikram        |
+| Rohan         |
+| Meera         |
+| Asha          |
+| Vikram        |
+| Rohan         |
+| Meera         |
+| Asha          |
++---------------+
+9 rows in set (0.001 sec)
+
+mysql> SELECT DISTINCT d.customer_name
+    -> FROM domestic_bookings d
+    -> INNER JOIN international_bookings i
+    -> ON d.customer_name = i.customer_name;
++---------------+
+| customer_name |
++---------------+
+| Asha          |
+| Vikram        |
+| Rohan         |
+| Meera         |
++---------------+
+4 rows in set (0.002 sec)
+
+mysql> SELECT DISTINCT d.customer_name
+    -> FROM domestic_bookings d
+    -> INNER JOIN international_bookings i
+    -> ON d.customer_name = i.customer_name;
++---------------+
+| customer_name |
++---------------+
+| Asha          |
+| Vikram        |
+| Rohan         |
+| Meera         |
++---------------+
+4 rows in set (0.001 sec)
+
+mysql> SELECT destination
+    -> FROM domestic_bookings
+    -> UNION
+    -> SELECT destination
+    -> FROM international_bookings;
++-------------+
+| destination |
++-------------+
+| Goa         |
+| Jaipur      |
+| Kerala      |
+| Dubai       |
+| Singapore   |
+| Bangkok     |
++-------------+
+6 rows in set (0.001 sec)
+
+mysql> SELECT
+    ->     customer_name,
+    ->     COUNT(*) AS booking_count
+    -> FROM (
+    ->     SELECT customer_name
+    ->     FROM domestic_bookings
+    ->     UNION ALL
+    ->     SELECT customer_name
+    ->     FROM international_bookings
+    -> ) AS all_bookings
+    -> GROUP BY customer_name;
++---------------+---------------+
+| customer_name | booking_count |
++---------------+---------------+
+| Asha          |             3 |
+| Vikram        |             2 |
+| Rohan         |             2 |
+| Meera         |             2 |
++---------------+---------------+
+4 rows in set (0.003 sec)
+
+mysql> SELECT DATABASE();
++------------------+
+| DATABASE()       |
++------------------+
+| travel_agency_db |
++------------------+
+1 row in set (0.000 sec)
+
+mysql> SHOW TABLES;
++----------------------------+
+| Tables_in_travel_agency_db |
++----------------------------+
+| domestic_bookings          |
+| international_bookings     |
++----------------------------+
+2 rows in set (0.002 sec)
+
+mysql> SELECT COUNT(*) AS domestic_count
+    -> FROM domestic_bookings;
++----------------+
+| domestic_count |
++----------------+
+|              4 |
++----------------+
+1 row in set (0.003 sec)
+
+mysql> SELECT COUNT(*) AS international_count
+    -> FROM international_bookings;
++---------------------+
+| international_count |
++---------------------+
+|                   5 |
++---------------------+
+1 row in set (0.001 sec)
+
+mysql> DESCRIBE domestic_bookings;
++---------------+---------------+------+-----+---------+----------------+
+| Field         | Type          | Null | Key | Default | Extra          |
++---------------+---------------+------+-----+---------+----------------+
+| booking_id    | int           | NO   | PRI | NULL    | auto_increment |
+| customer_name | varchar(100)  | NO   |     | NULL    |                |
+| destination   | varchar(100)  | NO   |     | NULL    |                |
+| booking_date  | date          | NO   |     | NULL    |                |
+| amount        | decimal(10,2) | NO   |     | NULL    |                |
++---------------+---------------+------+-----+---------+----------------+
+5 rows in set (0.061 sec)
+
+mysql> DESCRIBE international_bookings;
++---------------+---------------+------+-----+---------+----------------+
+| Field         | Type          | Null | Key | Default | Extra          |
++---------------+---------------+------+-----+---------+----------------+
+| booking_id    | int           | NO   | PRI | NULL    | auto_increment |
+| customer_name | varchar(100)  | NO   |     | NULL    |                |
+| destination   | varchar(100)  | NO   |     | NULL    |                |
+| booking_date  | date          | NO   |     | NULL    |                |
+| amount        | decimal(10,2) | NO   |     | NULL    |                |
++---------------+---------------+------+-----+---------+----------------+
+5 rows in set (0.002 sec)
+
+mysql> SELECT * FROM domestic_bookings;
++------------+---------------+-------------+--------------+----------+
+| booking_id | customer_name | destination | booking_date | amount   |
++------------+---------------+-------------+--------------+----------+
+|          1 | Asha          | Goa         | 2026-01-10   | 15000.00 |
+|          2 | Vikram        | Jaipur      | 2026-01-15   | 12000.00 |
+|          3 | Rohan         | Kerala      | 2026-02-05   | 18000.00 |
+|          4 | Meera         | Goa         | 2026-02-20   | 14000.00 |
++------------+---------------+-------------+--------------+----------+
+4 rows in set (0.002 sec)
+
+mysql> SELECT * FROM international_bookings;
++------------+---------------+-------------+--------------+----------+
+| booking_id | customer_name | destination | booking_date | amount   |
++------------+---------------+-------------+--------------+----------+
+|          1 | Asha          | Dubai       | 2026-03-10   | 45000.00 |
+|          2 | Vikram        | Singapore   | 2026-03-15   | 55000.00 |
+|          3 | Rohan         | Bangkok     | 2026-04-05   | 40000.00 |
+|          4 | Meera         | Dubai       | 2026-04-20   | 48000.00 |
+|          5 | Asha          | Singapore   | 2026-05-01   | 52000.00 |
++------------+---------------+-------------+--------------+----------+
+5 rows in set (0.001 sec)
+
+mysql> 
